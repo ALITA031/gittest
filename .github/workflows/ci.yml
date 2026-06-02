@@ -5,10 +5,18 @@ on:
   pull_request:
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        compiler: [gcc, clang]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Build
-        run: make
+      - name: Build game
+        run: make CC=${{ matrix.compiler }}
+      - name: Run engine tests
+        run: make CC=${{ matrix.compiler }} test
+      - name: Sanitizer tests
+        if: matrix.compiler == 'clang'
+        run: make CC=${{ matrix.compiler }} sanitize
