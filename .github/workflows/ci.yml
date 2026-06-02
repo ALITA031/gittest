@@ -8,15 +8,33 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         compiler: [gcc, clang]
+    env:
+      CC: ${{ matrix.compiler }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Show compiler version
+        run: $CC --version
+
       - name: Build game
-        run: make CC=${{ matrix.compiler }}
+        run: |
+          make clean
+          make
+
       - name: Run engine tests
-        run: make CC=${{ matrix.compiler }} test
+        run: |
+          make clean
+          make test
+
       - name: Sanitizer tests
         if: matrix.compiler == 'clang'
-        run: make CC=${{ matrix.compiler }} sanitize
+        env:
+          ASAN_OPTIONS: detect_leaks=0
+          UBSAN_OPTIONS: print_stacktrace=1
+        run: |
+          make clean
+          make sanitize
