@@ -1,6 +1,7 @@
 # Build output
 tetris
-*.o
+src/*.o
+tests/test_game
 *.out
 *.dSYM/
 
