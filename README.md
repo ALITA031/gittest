@@ -1,20 +1,38 @@
-# 俄罗斯方块 / Terminal Tetris
+# 俄罗斯方块 / Terminal Tetris Pro
 
-一个用 **C 语言** 编写的终端版俄罗斯方块小游戏。
+一个用 **C 语言** 编写的终端版俄罗斯方块。它不是单文件 demo，而是一个可继续维护和扩展的小型游戏项目：游戏引擎、终端输入、渲染、测试和 CI 分离。
 
-本项目不依赖 SDL、ncurses 或其他图形库，核心实现基于 ANSI 终端转义序列与 POSIX `termios`，适合在 macOS / Linux 终端中编译运行。
+本项目主要面向 macOS / Linux 终端。核心不依赖 SDL、ncurses 或其他图形库，使用 ANSI 终端转义序列和 POSIX `termios` 实现实时输入与绘制。
 
-## 功能
+## 主要特性
 
-- 10 × 20 标准棋盘
-- 7-bag 随机方块生成
+### 玩法
+
+- 标准 10 × 20 可见棋盘，额外 2 行隐藏出生区
 - 七种经典方块：I、O、T、S、Z、J、L
-- 左右移动、软降、硬降、顺/逆时针旋转
-- 简单 wall kick，靠墙旋转更自然
-- 下一块预览
-- 幽灵落点提示
-- 消行、得分、等级、速度递增
-- 暂停、重新开始、退出
+- 7-bag 随机系统，降低连续极端坏块概率
+- 5 个 Next 队列预览
+- Hold 暂存块
+- Ghost Piece 幽灵落点
+- Soft Drop / Hard Drop
+- Lock Delay：落地后有短暂调整时间
+- 限制 Lock Reset，避免无限拖延
+- SRS 风格旋转与 wall kick，包括 I 块独立 kick 表
+- 基础 T-Spin 判断
+- Single / Double / Triple / Tetris / T-Spin 计分
+- Combo 连击加分
+- Back-to-Back 加分
+- 等级提升后自动加速
+- 本地高分保存
+
+### 工程结构
+
+- `src/game.c`：纯游戏逻辑，不依赖终端，方便测试和移植
+- `src/render.c`：ANSI 终端渲染
+- `src/terminal.c`：非阻塞输入、raw mode、计时
+- `src/main.c`：主循环、高分读写、输入分发
+- `tests/test_game.c`：游戏引擎单元测试
+- `.github/workflows/ci.yml`：GitHub Actions 自动编译和测试
 
 ## 编译运行
 
@@ -29,6 +47,18 @@ make
 
 ```bash
 make run
+```
+
+### 运行测试
+
+```bash
+make test
+```
+
+### 运行 sanitizer 测试
+
+```bash
+make sanitize
 ```
 
 ### 清理构建产物
@@ -46,9 +76,24 @@ make clean
 | ↑ 或 W / X | 顺时针旋转 |
 | Z | 逆时针旋转 |
 | Space | 硬降 |
+| C | Hold 暂存 |
 | P | 暂停 / 继续 |
-| R | 游戏结束后重新开始 |
+| R | 重新开始 |
 | Q | 退出 |
+
+## 高分保存位置
+
+优先使用：
+
+```text
+$XDG_DATA_HOME/terminal-tetris-pro/highscore
+```
+
+如果没有设置 `XDG_DATA_HOME`，则使用：
+
+```text
+~/.local/share/terminal-tetris-pro/highscore
+```
 
 ## 项目结构
 
@@ -61,12 +106,33 @@ make clean
 ├── .github
 │   └── workflows
 │       └── ci.yml
-└── src
-    └── main.c
+├── src
+│   ├── game.c
+│   ├── main.c
+│   ├── render.c
+│   ├── render.h
+│   ├── terminal.c
+│   ├── terminal.h
+│   └── tetris.h
+└── tests
+    └── test_game.c
 ```
 
-## 说明
+## 兼容性说明
 
-这是一个单文件核心实现，适合学习 C 语言、终端 UI、游戏主循环、碰撞检测、旋转逻辑、消行和计分。
+- 推荐 macOS Terminal、iTerm2、Linux GNOME Terminal、Kitty、Alacritty 等现代终端。
+- Windows 建议使用 WSL。原生 Windows 需要额外适配 Console API。
+- 终端窗口建议至少 82 列 × 26 行。
 
-注意：本项目使用 POSIX 终端接口，主要面向 macOS / Linux。Windows 需要 WSL、MSYS2、Cygwin 或自行适配终端输入输出。
+## 后续可扩展方向
+
+- 加入可配置按键和速度曲线
+- 加入排行榜文件
+- 加入 AI 自动玩俄罗斯方块
+- 加入回放系统
+- 加入 SDL2 / raylib 图形前端，复用现有 `src/game.c` 引擎
+- 加入更严格的 Guideline T-Spin Mini 与 Perfect Clear 规则
+
+## License
+
+MIT
