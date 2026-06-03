@@ -5,7 +5,7 @@ on:
   pull_request:
 
 jobs:
-  build-and-test:
+  linux:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -14,27 +14,29 @@ jobs:
     env:
       CC: ${{ matrix.compiler }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Show compiler version
-        run: $CC --version
-
-      - name: Build game
-        run: |
-          make clean
-          make
-
-      - name: Run engine tests
-        run: |
-          make clean
-          make test
-
-      - name: Sanitizer tests
-        if: matrix.compiler == 'clang'
+      - uses: actions/checkout@v4
+      - run: $CC --version
+      - run: make clean
+      - run: make
+      - run: make test
+      - run: make release
+      - if: matrix.compiler == 'clang'
         env:
           ASAN_OPTIONS: detect_leaks=0
           UBSAN_OPTIONS: print_stacktrace=1
-        run: |
-          make clean
-          make sanitize
+        run: make sanitize
+
+  macos:
+    runs-on: macos-latest
+    env:
+      CC: clang
+      ASAN_OPTIONS: detect_leaks=0
+      UBSAN_OPTIONS: print_stacktrace=1
+    steps:
+      - uses: actions/checkout@v4
+      - run: $CC --version
+      - run: make clean
+      - run: make
+      - run: make test
+      - run: make sanitize
+      - run: make release
