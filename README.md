@@ -4,6 +4,15 @@
 
 本项目主要面向 macOS / Linux 终端。核心不依赖 SDL、ncurses 或其他图形库，使用 ANSI 终端转义序列和 POSIX `termios` 实现实时输入与绘制。
 
+## 当前定位
+
+Terminal Tetris Pro 的目标不是只做一个能跑的俄罗斯方块，而是做成一个结构清楚、可测试、可扩展的 C 语言游戏项目：
+
+- 终端客户端可以直接玩；
+- 核心游戏引擎保持独立，方便测试和未来移植；
+- 项目有 CI、sanitizer、单元测试和文档；
+- 后续可以继续扩展排行榜、配置、回放、AI 和图形前端。
+
 ## 主要特性
 
 ### 玩法
@@ -61,6 +70,18 @@ make test
 make sanitize
 ```
 
+### 完整本地检查
+
+```bash
+make check
+```
+
+### 发布构建
+
+```bash
+make release
+```
+
 ### 清理构建产物
 
 ```bash
@@ -102,10 +123,14 @@ $XDG_DATA_HOME/terminal-tetris-pro/highscore
 ├── Makefile
 ├── README.md
 ├── LICENSE
+├── CONTRIBUTING.md
+├── ROADMAP.md
 ├── .gitignore
 ├── .github
 │   └── workflows
 │       └── ci.yml
+├── docs
+│   └── ARCHITECTURE.md
 ├── src
 │   ├── game.c
 │   ├── main.c
@@ -117,6 +142,12 @@ $XDG_DATA_HOME/terminal-tetris-pro/highscore
 └── tests
     └── test_game.c
 ```
+
+## 开发文档
+
+- [ROADMAP.md](ROADMAP.md)：项目路线图，说明如何从终端小游戏扩展成可维护的开源项目。
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)：架构说明，解释 engine、terminal、render 和 application 层的边界。
+- [CONTRIBUTING.md](CONTRIBUTING.md)：贡献指南，包含本地检查命令、代码风格和 PR 检查项。
 
 ## 兼容性说明
 
