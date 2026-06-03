@@ -8,7 +8,7 @@ OBJ := $(SRC:.c=.o)
 TEST_TARGET := tests/test_game
 TEST_SRC := tests/test_game.c src/game.c
 
-.PHONY: all run clean test debug sanitize
+.PHONY: all run clean test debug sanitize check release
 
 all: $(TARGET)
 
@@ -34,6 +34,15 @@ debug:
 sanitize:
 	$(MAKE) clean
 	$(MAKE) CFLAGS="-std=c11 -Wall -Wextra -Wpedantic -g -O1 -fsanitize=address,undefined" LDFLAGS="-fsanitize=address,undefined" test
+
+check:
+	$(MAKE) clean
+	$(MAKE) test
+	$(MAKE) sanitize
+
+release:
+	$(MAKE) clean
+	$(MAKE) CFLAGS="-std=c11 -Wall -Wextra -Wpedantic -O3 -DNDEBUG" all
 
 clean:
 	rm -f $(TARGET) $(OBJ) $(TEST_TARGET)
